@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Помню Праздник">
+  <meta name="theme-color" content="#f5f4ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="img/icon-192.png">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+  <title>Помню Праздник</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Nunito:wght@700;800;900&display=swap&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Brand heading style matching Bseuler rounded bold */
+    .brand-heading { font-family: 'Nunito', 'DM Sans', sans-serif; font-weight: 900; }
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH (shown while Firebase checks auth) -->
+  <div id="splash" class="splash-screen">
+    <img src="img/logo-transparent.png" class="splash-logo" alt="">
+    <div class="splash-loader"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen" class="auth-screen hidden">
+    <div class="auth-stars">
+      <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
+      <span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-logo-wrap">
+        <img src="img/logo-transparent.png" class="auth-logo-full" alt="Помни Праздник">
+        <p class="auth-tagline">поздравляй родных и близких</p>
+      </div>
+      <!-- Google -->
+      <button id="google-signin-btn" class="google-btn">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 19.7-8 19.7-20 0-1.3-.1-2.7-.1-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 13 24 13c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36 24 36c-5.2 0-9.7-3-11.4-7.4l-6.6 5.1C9.5 39.6 16.2 44 24 44z"/><path fill="#1565C0" d="M43.6 20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.8l6.2 5.2C41 36.1 44 30.5 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+        Войти через Google
+      </button>
+
+      <div class="auth-divider"><span>или</span></div>
+
+      <!-- Email/Password -->
+      <div id="email-form" class="email-form">
+        <input type="email" id="auth-email" class="auth-input" placeholder="Email">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Пароль">
+        <button id="email-signin-btn" class="email-btn">Войти</button>
+        <button id="email-signup-btn" class="email-btn email-btn-outline">Зарегистрироваться</button>
+        <button id="forgot-btn" class="forgot-btn">Забыл пароль</button>
+      </div>
+
+      <p class="auth-note">Ваши данные хранятся только в вашем аккаунте</p>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <img src="img/icon-192.png" class="topbar-icon" alt="">
+        <div class="topbar-title">
+          <span class="topbar-pomnu brand-heading">ПОМНИ</span>
+          <span class="topbar-prazdnik brand-heading">праздник</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="add-btn" title="Добавить">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="icon-btn" id="user-btn" title="Профиль">
+          <img id="user-avatar" src="" alt="" width="28" height="28" style="border-radius:50%;display:none">
+          <svg id="user-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- NAV -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        <span>Главная</span>
+      </button>
+      <button class="nav-item" data-tab="people">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span>Люди</span>
+      </button>
+      <button class="nav-item" data-tab="calendar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Календарь</span>
+      </button>
+      <button class="nav-item" data-tab="couples">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <span>Пары</span>
+      </button>
+      <button class="nav-item" data-tab="settings">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span>Напоминания</span>
+      </button>
+    </nav>
+
+    <!-- CONTENT AREA -->
+    <main class="main-content">
+
+      <!-- HOME TAB -->
+      <section id="tab-home" class="tab-section active">
+
+        <!-- KPI Strip -->
+        <div id="kpi-strip" class="kpi-strip hidden"></div>
+
+        <!-- Today Hero -->
+        <div id="today-block" class="today-hero hidden"></div>
+
+        <!-- Search -->
+        <div class="home-search-wrap">
+          <div class="home-search-inner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="home-search" class="home-search-input" placeholder="Найти по имени...">
+          </div>
+        </div>
+
+        <!-- Nearest event hero -->
+        <div id="nearest-hero" class="nearest-hero hidden"></div>
+
+        <!-- Upcoming list -->
+        <div class="home-section-wrap">
+          <div class="home-section-title">Предстоящие события</div>
+          <div id="upcoming-list" class="event-list">
+            <div class="empty-state">
+              <span class="empty-icon">🎉</span>
+              <p>Добавьте первого человека,<br>чтобы видеть предстоящие события</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gift widget -->
+        <div class="home-section-wrap" id="gift-ideas-section">
+          <div class="home-section-title">🎁 Идеи подарков</div>
+          <div id="gift-ideas-list"></div>
+        </div>
+
+      </section>
+
+      <!-- CALENDAR TAB -->
+      <section id="tab-calendar" class="tab-section">
+        <div class="tab-header">
+          <h2 class="section-heading">Календарь</h2>
+        </div>
+        <div style="padding:0 16px">
+          <div class="mini-calendar" style="margin-bottom:16px">
+            <div style="font-size:14px;font-weight:700;color:var(--brand-purple);margin-bottom:12px;text-align:center" id="calendar-month-label"></div>
+            <div class="mini-cal-weekdays">
+              <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+            </div>
+            <div id="mini-cal-grid" class="mini-cal-grid"></div>
+          </div>
+          <div id="cal-events-list" class="event-list"></div>
+        </div>
+      </section>
+
+      <!-- PEOPLE TAB -->
+      <section id="tab-people" class="tab-section">
+        <div class="tab-header">
+          <h2 class="section-heading">Люди</h2>
+          <input type="search" id="people-search" class="search-input" placeholder="Поиск...">
+        </div>
+        <div id="people-list" class="card-grid">
+          <div class="empty-state">
+            <span class="empty-icon">👤</span>
+            <p>Нажмите <strong>+</strong> чтобы добавить человека</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- COUPLES TAB -->
+      <section id="tab-couples" class="tab-section">
+        <div class="tab-header">
+          <h2 class="section-heading">Пары</h2>
+        </div>
+        <div id="couples-list" class="card-grid">
+          <div class="empty-state">
+            <span class="empty-icon">💍</span>
+            <p>Нажмите <strong>+</strong> чтобы добавить пару</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS TAB -->
+      <section id="tab-settings" class="tab-section">
+        <div class="tab-header">
+          <h2 class="section-heading">Напоминания</h2>
+        </div>
+        <div class="settings-body">
+          <div class="settings-card">
+            <h3 class="settings-group-title">За сколько дней напоминать</h3>
+            <label class="toggle-row">
+              <span>За 7 дней</span>
+              <div class="ios-toggle"><input type="checkbox" id="remind-7" checked><span class="ios-slider"></span></div>
+            </label>
+            <label class="toggle-row">
+              <span>За 3 дня</span>
+              <div class="ios-toggle"><input type="checkbox" id="remind-3" checked><span class="ios-slider"></span></div>
+            </label>
+            <label class="toggle-row">
+              <span>За 1 день</span>
+              <div class="ios-toggle"><input type="checkbox" id="remind-1"><span class="ios-slider"></span></div>
+            </label>
+            <label class="toggle-row">
+              <span>В день события</span>
+              <div class="ios-toggle"><input type="checkbox" id="remind-0" checked><span class="ios-slider"></span></div>
+            </label>
+          </div>
+          <div class="settings-card">
+            <h3 class="settings-group-title">Время уведомления</h3>
+            <label class="toggle-row">
+              <span>Время</span>
+              <input type="time" id="remind-time" value="09:00" class="time-input">
+            </label>
+          </div>
+          <div class="settings-card">
+            <h3 class="settings-group-title">Пример уведомления</h3>
+            <div class="notif-preview">
+              <div class="notif-preview-icon">🎂</div>
+              <div>
+                <div class="notif-preview-title">Через 3 дня</div>
+                <div class="notif-preview-sub">У Анны Белоконь день рождения</div>
+              </div>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3 class="settings-group-title">Push-уведомления</h3>
+            <button id="enable-notif-btn" class="settings-btn">Включить уведомления</button>
+            <p class="settings-hint">Браузер спросит разрешение. Работает если сайт добавлен на главный экран.</p>
+          </div>
+          <div class="settings-card">
+            <h3 class="settings-group-title">Аккаунт</h3>
+            <div class="account-row" id="account-info"></div>
+            <button id="signout-btn" class="settings-btn settings-btn-danger">Выйти из аккаунта</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: VIEW PERSON -->
+  <div id="view-person-modal" class="modal hidden">
+    <div class="modal-overlay" id="view-person-overlay"></div>
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="view-person-name">Имя</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="edit-btn" id="view-person-edit-btn">✏️ Изменить</button>
+          <button class="modal-close" id="view-person-close">✕</button>
+        </div>
+      </div>
+      <div class="modal-body" id="view-person-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: VIEW COUPLE -->
+  <div id="view-couple-modal" class="modal hidden">
+    <div class="modal-overlay" id="view-couple-overlay"></div>
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="view-couple-name">Пара</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="edit-btn" id="view-couple-edit-btn">✏️ Изменить</button>
+          <button class="modal-close" id="view-couple-close">✕</button>
+        </div>
+      </div>
+      <div class="modal-body" id="view-couple-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD/EDIT PERSON -->
+  <div id="person-modal" class="modal hidden">
+    <div class="modal-overlay" id="person-modal-overlay"></div>
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="person-modal-title">Новый человек</h3>
+        <button class="modal-close" id="person-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="person-form" autocomplete="off">
+          <input type="hidden" id="person-id">
+          <div class="form-row photo-upload-row">
+            <label>Фото</label>
+            <div class="photo-upload-wrap">
+              <div class="photo-preview" id="person-photo-preview">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <div class="photo-upload-btns">
+                <label class="photo-btn" for="person-photo-input">Выбрать фото</label>
+                <input type="file" id="person-photo-input" accept="image/*" style="display:none">
+                <button type="button" class="photo-btn-clear" id="person-photo-clear" style="display:none">Удалить</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Имя *</label>
+            <input type="text" id="person-name" required placeholder="Александр Смирнов">
+          </div>
+          <div class="form-row">
+            <label>Дата рождения *</label>
+            <input type="date" id="person-birthday" required>
+          </div>
+          <div class="form-row">
+            <label>Категория</label>
+            <select id="person-category">
+              <option value="friend">Друг</option>
+              <option value="relative">Родственник</option>
+              <option value="colleague">Коллега</option>
+              <option value="client">Клиент</option>
+              <option value="family">Семья</option>
+              <option value="other">Другое</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Телефон</label>
+            <input type="tel" id="person-phone" placeholder="+7 999 123-45-67">
+          </div>
+          <div class="form-row">
+            <label>Город</label>
+            <input type="text" id="person-city" placeholder="Москва">
+          </div>
+          <div class="form-row">
+            <label>Последняя встреча</label>
+            <input type="date" id="person-last-seen">
+          </div>
+          <div class="form-row">
+            <label>Подарок в этом году</label>
+            <input type="text" id="person-gift-current" placeholder="Что подарили или планируете">
+          </div>
+          <div class="form-row">
+            <label>Подарок в прошлом году</label>
+            <input type="text" id="person-gift-prev" placeholder="Что дарили раньше">
+          </div>
+          <div class="form-row">
+            <label>ВКонтакте</label>
+            <div class="social-input-wrap">
+              <span class="social-prefix">vk.com/</span>
+              <input type="text" id="person-vk" placeholder="username">
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Instagram</label>
+            <div class="social-input-wrap">
+              <span class="social-prefix">@</span>
+              <input type="text" id="person-instagram" placeholder="username">
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Telegram</label>
+            <div class="social-input-wrap">
+              <span class="social-prefix">@</span>
+              <input type="text" id="person-telegram" placeholder="username">
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Заметки</label>
+            <textarea id="person-notes" rows="3" placeholder="Предпочтения, интересы, что не любит..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="person-delete-btn" style="display:none">Удалить</button>
+            <button type="submit" class="btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD/EDIT COUPLE -->
+  <div id="couple-modal" class="modal hidden">
+    <div class="modal-overlay" id="couple-modal-overlay"></div>
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="couple-modal-title">Новая пара</h3>
+        <button class="modal-close" id="couple-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="couple-form" autocomplete="off">
+          <input type="hidden" id="couple-id">
+          <div class="form-row photo-upload-row">
+            <label>Фото пары</label>
+            <div class="photo-upload-wrap">
+              <div class="photo-preview" id="couple-photo-preview">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              </div>
+              <div class="photo-upload-btns">
+                <label class="photo-btn" for="couple-photo-input">Выбрать фото</label>
+                <input type="file" id="couple-photo-input" accept="image/*" style="display:none">
+                <button type="button" class="photo-btn-clear" id="couple-photo-clear" style="display:none">Удалить</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Имя 1 *</label>
+            <input type="text" id="couple-name1" required placeholder="Иван">
+          </div>
+          <div class="form-row">
+            <label>Имя 2 *</label>
+            <input type="text" id="couple-name2" required placeholder="Вера">
+          </div>
+          <div class="form-row">
+            <label>Фамилия</label>
+            <input type="text" id="couple-surname" placeholder="Волковы">
+          </div>
+          <div class="form-row">
+            <label>Дата свадьбы *</label>
+            <input type="date" id="couple-wedding" required>
+          </div>
+          <div class="form-row">
+            <label>Телефон</label>
+            <input type="tel" id="couple-phone" placeholder="+7 999 123-45-67">
+          </div>
+          <div class="form-row">
+            <label>Подарок в этом году</label>
+            <input type="text" id="couple-gift-current" placeholder="Что подарили или планируете">
+          </div>
+          <div class="form-row">
+            <label>Подарок в прошлом году</label>
+            <input type="text" id="couple-gift-prev" placeholder="Что дарили раньше">
+          </div>
+          <div class="form-row">
+            <label>Заметки</label>
+            <textarea id="couple-notes" rows="3" placeholder="Предпочтения, история..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="couple-delete-btn" style="display:none">Удалить</button>
+            <button type="submit" class="btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD TYPE CHOOSER -->
+  <div id="add-modal" class="modal hidden">
+    <div class="modal-overlay" id="add-modal-overlay"></div>
+    <div class="modal-sheet modal-sheet-small">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3>Что добавить?</h3>
+        <button class="modal-close" id="add-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <button class="add-choice-btn" id="add-person-btn">
+          <span class="add-choice-icon">👤</span>
+          <div>
+            <strong>Человек</strong>
+            <p>День рождения и личные данные</p>
+          </div>
+        </button>
+        <button class="add-choice-btn" id="add-couple-btn">
+          <span class="add-choice-icon">💍</span>
+          <div>
+            <strong>Пара</strong>
+            <p>Годовщина свадьбы</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSON ACTION MENU -->
+  <div id="action-menu" class="modal hidden">
+    <div class="modal-overlay" id="action-menu-overlay"></div>
+    <div class="modal-sheet modal-sheet-small">
+      <div class="modal-handle"></div>
+      <div class="modal-body" id="action-menu-body" style="padding-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- AI MODAL -->
+  <div id="ai-modal" class="modal hidden">
+    <div class="modal-overlay" id="ai-modal-overlay"></div>
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="ai-modal-title">✨ Поздравление</h3>
+        <button class="modal-close" id="ai-modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="ai-result" class="ai-result"></div>
+        <div id="ai-loading" class="ai-loading">
+          <div class="ai-dots"><span></span><span></span><span></span></div>
+          <p>Генерирую поздравление...</p>
+        </div>
+        <div class="ai-actions" id="ai-actions" style="display:none">
+          <button class="btn-primary" id="ai-copy-btn">Скопировать</button>
+          <button class="btn-secondary" id="ai-regenerate-btn">Ещё вариант</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR DAY POPUP -->
+  <div id="cal-popup" class="modal hidden">
+    <div class="modal-overlay" id="cal-popup-overlay"></div>
+    <div class="modal-sheet modal-sheet-small">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="cal-popup-title">События дня</h3>
+        <button class="modal-close" id="cal-popup-close">✕</button>
+      </div>
+      <div class="modal-body" id="cal-popup-body"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Firebase SDKs -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>
